@@ -52,10 +52,10 @@ const getShortByShortId = async (shortId) => {
 
 // Check the req.body
 const validateBodyMiddleware = (req, res, next) => {
-    if (!req.body.URL) {
+    if (!req.body.url) {
         return sendInvalidUrlJson(res);
     }
-    if (!req.body.URL.match(/^http(s|):\/\//g)) {
+    if (!req.body.url.match(/^http(s|):\/\//g)) {
         return sendInvalidUrlJson(res);
     }
     next();
@@ -63,7 +63,7 @@ const validateBodyMiddleware = (req, res, next) => {
 
 // Check if URL is valid (if website is reachable)
 const checkConnectMiddleware = (req, response, next) => {
-    request(req.body.URL, (err, res, body) => {
+    request(req.body.url, (err, res, body) => {
         if (err) {
             // console.log(err.message);
             return sendInvalidUrlJson(response);
@@ -75,7 +75,7 @@ const checkConnectMiddleware = (req, response, next) => {
 
 // Check if Shortcut for given URL is already registered
 const validateDatabaseMiddlare = async (req, res, next) => {
-    const ShortcutAlreadyExists = await getShortByURL(req.body.URL);
+    const ShortcutAlreadyExists = await getShortByURL(req.body.url);
     if (ShortcutAlreadyExists) {
         return sendRegisterJson(res, ShortcutAlreadyExists);
     }
@@ -88,13 +88,13 @@ router.post('/new', validateBodyMiddleware,checkConnectMiddleware, validateDatab
     try {
         const randomUrlId = await generateRandomUrlId();
         const newShortUrl = await new Shorturl({
-            url: req.body.URL,
+            url: req.body.url,
             short: randomUrlId
         })
         await newShortUrl.save();
         return sendRegisterJson(res, newShortUrl);
     } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
         return res.status(500).json({
             "error": "SERVER ERROR"
         })
